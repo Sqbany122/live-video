@@ -15,9 +15,9 @@ function App() {
 	const ref = useRef()
 	const urlRef = useRef()
 	const socketRef = useRef()
-	console.log(ref.current)
+
 	useEffect(() => {
-		socketRef.current = io.connect("http://localhost:4000")
+		socketRef.current = io.connect(process.env.REACT_APP_SOCKET_IO_URL + ":" + process.env.REACT_APP_SOCKET_IO_PORT)
 			socketRef.current.on("seeked", (seek) => {
 				setSeeked(seek)
 			})
@@ -33,7 +33,7 @@ function App() {
 
 	useEffect(
 		() => {
-			socketRef.current = io.connect("http://localhost:4000")
+			socketRef.current = io.connect(process.env.REACT_APP_SOCKET_IO_URL + ":" + process.env.REACT_APP_SOCKET_IO_PORT)
 			
 			socketRef.current.on("paused", (paused) => {
 				setPaused(paused)
