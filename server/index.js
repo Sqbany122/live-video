@@ -1,6 +1,6 @@
 const app = require('express')()
-const http = require('http').createServer(app)
-const io = require('socket.io')(http)
+const https = require('https').createServer(app)
+const io = require('socket.io')(https)
 
 io.on('connection', socket => {
   socket.on('paused', (paused) => {
