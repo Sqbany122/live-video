@@ -17,7 +17,7 @@ function App() {
 	const socketRef = useRef()
 
 	useEffect(() => {
-		socketRef.current = io.connect(process.env.REACT_APP_SOCKET_IO_URL + ":" + process.env.REACT_APP_SOCKET_IO_PORT)
+		socketRef.current = io.connect(process.env.REACT_APP_SOCKET_IO_URL)
 			socketRef.current.on("seeked", (seek) => {
 				setSeeked(seek)
 			})
@@ -33,7 +33,7 @@ function App() {
 
 	useEffect(
 		() => {
-			socketRef.current = io.connect(process.env.REACT_APP_SOCKET_IO_URL + ":" + process.env.REACT_APP_SOCKET_IO_PORT)
+			socketRef.current = io.connect(process.env.REACT_APP_SOCKET_IO_URL)
 			
 			socketRef.current.on("paused", (paused) => {
 				setPaused(paused)
