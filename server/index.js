@@ -1,6 +1,18 @@
 const app = require('express')()
-const https = require('https').createServer(app)
-const io = require('socket.io')(https)
+const https = require('https')
+const io = require('socket.io')(server)
+
+var options = {
+  key: fs.readFileSync('/etc/letsencrypt/live/codepush.pl/privkey.pem'),     
+  cert: fs.readFileSync('/etc/letsencrypt/live/codepush.pl/cert.pem'),     
+  ca: fs.readFileSync('/etc/letsencrypt/live/codepush.pl/chain.pem'),
+
+  requestCert: false,
+  rejectUnauthorized: false
+}
+
+var server = https.createServer(options, app);
+    server.listen(8080);
 
 io.on('connection', socket => {
   socket.on('paused', (paused) => {
