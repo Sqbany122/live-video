@@ -10,6 +10,9 @@ io.on('connection', socket => {
   socket.on('seeked', (seek) => {
     io.emit('seeked', seek)
   })
+  socket.on('urlChange', (url) => {
+    io.emit('urlChange', url)
+  })
 })
 
 http.listen(4000, function() {

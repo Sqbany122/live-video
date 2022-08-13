@@ -36,3 +36,55 @@ h3 {
 span {
   color: black;
 }
+
+/* Video player */
+.videoPlayer {
+  width: 1280px;
+  height: 100%;
+  margin: 0 auto;
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  margin: 0;
+}
+
+.controls {
+  width: 100%;
+  position: relative;
+  margin-top: 2rem;
+}
+
+.timeBar {
+  width: 100%;
+}
+
+.playedTime {
+  position: absolute;
+  left: 0
+}
+
+.duration {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.videoInputLink {
+  margin: 1rem 0;
+  width: 50%;
+  display: flex;
+  flex-direction: row;
+}
+
+.videoInputLink input {
+  width: 100%;
+  padding: 5px;
+}
+
+.videoInputLink button {
+  margin: 0 1rem;
+}
