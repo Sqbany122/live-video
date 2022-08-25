@@ -4,14 +4,14 @@ const io = require('socket.io')(http)
 
 io.on('connection', socket => {
   socket.on('paused', (paused) => {
-    io.emit('paused', paused)
+    socket.broadcast.emit('paused', paused)
   })
 
   socket.on('seeked', (seek) => {
-    io.emit('seeked', seek)
+    socket.broadcast.emit('seeked', seek)
   })
   socket.on('urlChange', (url) => {
-    io.emit('urlChange', url)
+    socket.broadcast.emit('urlChange', url)
   })
 })
 

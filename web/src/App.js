@@ -1,49 +1,48 @@
 import React, { createRef, useEffect, useRef, useState } from "react"
 import io from "socket.io-client"
 import ReactPlayer from 'react-player'
-import Duration from "./Duration"
+import Controls from "./components/Controls"
 import "./App.css"
+import SideNav from "./components/SideNav"
 
 
-function App() {
+const App = () => {
 	const [ paused, setPaused ] = useState(false)
 	const [ seeked, setSeeked ] = useState(0)
 	const [ played, setPlayed ] = useState(0)
 	const [ url, setUrl ] = useState(null)
 	const [ playedBar, setPlayedBar ] = useState(0)
-	
+	const [ duration, setDuration ] = useState(0)
+	const [ volume, setVolume ] = useState(0.5)
+
 	const ref = useRef()
 	const urlRef = useRef()
 	const socketRef = useRef()
 
 	useEffect(() => {
 		socketRef.current = io.connect(process.env.REACT_APP_SOCKET_IO_URL + ":" + process.env.REACT_APP_SOCKET_IO_PORT)
-			socketRef.current.on("seeked", (seek) => {
-				setSeeked(seek)
-			})
-
-			socketRef.current.on("urlChange", (url) => {
-				setUrl(url)
-			})
-
-			ref.current.seekTo(seeked) 
 		
-			return () => true
-	}, [ seeked, url ])
+		socketRef.current.on("seeked", (seek) => {
+			setSeeked(seek)
+			ref.current.seekTo(seek) 
+		})
 
-	useEffect(
-		() => {
-			socketRef.current = io.connect(process.env.REACT_APP_SOCKET_IO_URL + ":" + process.env.REACT_APP_SOCKET_IO_PORT)
-			
-			socketRef.current.on("paused", (paused) => {
-				setPaused(paused)
-			})
-		
-			return () => true
-		},
-		[ paused ]
-	)
+		socketRef.current.on("urlChange", (url) => {
+			setUrl(url)
+			setPlayed(0)
+			setPlayedBar(0)
+			setVolume(0)
+			setPaused(false)
+		})
 
+		socketRef.current.on("paused", (paused) => {
+			setPaused(paused)
+		})
+
+		return () => socketRef.current.disconnect()
+	}, [ seeked, url, paused ])
+
+ 
 	const pauseVideo = () => {
 		setPaused(true);
 		socketRef.current.emit("paused", true);
@@ -55,8 +54,8 @@ function App() {
 	}
 
 	const handleSeekChange = (e) => {
-		ref.current.seekTo(parseFloat(e.target.value));
 		setSeeked(parseFloat(e.target.value))
+		ref.current.seekTo(parseFloat(e.target.value));
 		socketRef.current.emit("seeked", parseFloat(e.target.value))
 	}
 
@@ -65,50 +64,79 @@ function App() {
 		setPlayedBar(e.played);
 	}
 
+	const handleDuration = (duration) => {
+		setDuration(duration);
+	}
+
 	const handleChangeVideo = () => {
-		console.log(urlRef.current.value)
 		setUrl(urlRef.current.value);
+		setPaused(false)
 		socketRef.current.emit("urlChange", urlRef.current.value)
 	}
 
+	const handlePauseStop = (e) => {
+		if (paused) {
+			playVideo()
+		} else {
+			pauseVideo()
+		}
+	} 
+
+	const handleVolumeChange = (e) => {
+		setVolume(e.target.value);
+	}
+
+	const handleMutePlayer = () => {
+		setVolume(0);
+	}
+
 	return (
-		<div class="videoPlayer">
-			<div className="card">
-				<div className="videoInputLink">
-					<input ref={urlRef} type="text" />
-					<button onClick={handleChangeVideo}>Odpol</button>
-				</div>
-				<ReactPlayer 
-					ref={ref}
-					url={url}
-					onPause={pauseVideo}  
-					onPlay={playVideo}
-					playing={!paused}
-					light={false}
-					progress={seeked}
-					width={'1280px'}
-					height={'720px'}
-					volume={0.5}
-					onProgress={(e) => handleProgress(e)}
-					config={{
-						youtube: {
-							playerVars: {
-								autohide: 1
+		<>
+			<SideNav />
+			<div className="mainBox">
+				<div className="videoPlayerBox">
+					<ReactPlayer 
+						ref={ref}
+						url={url}
+						className="player"  
+						playing={!paused}
+						style={{ pointerEvents: 'none' }}
+						light={false}
+						width={'100%'}
+						progress={seeked}
+						volume={volume}
+						onDuration={handleDuration}
+						onProgress={(e) => handleProgress(e)}
+						config={{
+							youtube: {
+								playerVars: {
+									autohide: 1
+								},
 							},
-						},
-					}}
-				/>
-				<div className="controls">
-					<Duration className="playedTime" seconds={played} /><br />
-					<input
-						className="timeBar" type='range' min={0} max={0.999999} step='any'
-						value={playedBar}
-						onChange={(e) => handleSeekChange(e)}
+						}}
 					/>
-					<Duration className="duration" seconds={1223} />
+					<Controls 
+						played={played} 
+						paused={paused}
+						playedBar={playedBar} 
+						duration={duration}
+						volume={volume}
+						handleSeekChange={handleSeekChange}
+						handlePauseStop={handlePauseStop}
+						handleVolumeChange={handleVolumeChange}
+						handleMutePlayer={handleMutePlayer}
+					/>
+				</div>
+				<div className="rightBox">
+					<div className="actionBox">
+						<div className="videoInputLink">
+							<input ref={urlRef} type="text" />
+							<button onClick={handleChangeVideo}>Napoczynaj</button>
+						</div>
+					</div>
 				</div>
 			</div>
-		</div>
+		</>
 	)
 }
 
